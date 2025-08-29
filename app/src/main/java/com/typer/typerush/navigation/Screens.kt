@@ -18,6 +18,7 @@ sealed class Screen(val route: String) {
     object SignIn : Screen("sign_in")
 
     object LandingHome : Screen("landing_home")
+    object TypeTest : Screen("type_test")
 }
 
 sealed class BottomBarScreen(

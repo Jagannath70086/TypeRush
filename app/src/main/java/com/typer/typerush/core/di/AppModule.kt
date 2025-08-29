@@ -11,6 +11,10 @@ import com.typer.typerush.core.api.FirebaseTokenProvider
 import com.typer.typerush.core.api.HttpClientFactory
 import com.typer.typerush.core.session.SessionManager
 import com.typer.typerush.navigation.NavigationManager
+import com.typer.typerush.practice.data.datasource.PracticeRemoteDatasource
+import com.typer.typerush.practice.data.repository.PracticeRepositoryImpl
+import com.typer.typerush.practice.domain.repository.PracticeRepository
+import com.typer.typerush.practice.presentation.PracticeViewModel
 import com.typer.typerush.splash.SplashViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -42,14 +46,17 @@ val appModule = module {
     singleOf(::SessionManager)
 
     //datasource
-    single { AuthRemoteDataSource(client = get(named("withTokenHeader"))) }
-    single { UserRemoteDataSource(client = get(named("withTokenHeader"))) }
+    factory { AuthRemoteDataSource(client = get(named("withTokenHeader"))) }
+    factory { UserRemoteDataSource(client = get(named("withTokenHeader"))) }
+    factory { PracticeRemoteDatasource(client = get(named("withTokenHeader"))) }
 
     //repository
-    singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
-    singleOf(::UserRepositoryImpl).bind<UserRepository>()
+    singleOf(::AuthRepositoryImpl) bind(AuthRepository::class)
+    singleOf(::UserRepositoryImpl) bind(UserRepository::class)
+    singleOf(::PracticeRepositoryImpl) bind(PracticeRepository::class)
 
     //viewModels
     viewModelOf(::AuthViewModel)
     viewModelOf(::SplashViewModel)
+    viewModelOf(::PracticeViewModel)
 }
