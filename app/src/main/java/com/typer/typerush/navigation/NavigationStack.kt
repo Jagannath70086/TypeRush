@@ -1,0 +1,53 @@
+package com.typer.typerush.navigation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import org.koin.compose.koinInject
+
+@Composable
+fun NavigationStack(
+    modifier: Modifier = Modifier,
+    navigationManager: NavigationManager = koinInject()
+) {
+    val navController = rememberNavController()
+    val navigationEvent by navigationManager.navigationEvent.collectAsState(initial = null)
+
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { event ->
+            when(event) {
+                is NavigationEvent.NavigateTo -> navController.navigate(event.destination)
+                is NavigationEvent.NavigateBack -> navController.popBackStack()
+                is NavigationEvent.NavigateToAndClearBackStack -> {
+                    navController.navigate(event.destination) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Splash.route,
+            modifier = modifier.padding(innerPadding)
+        ) {
+            navGraph()
+        }
+    }
+}
