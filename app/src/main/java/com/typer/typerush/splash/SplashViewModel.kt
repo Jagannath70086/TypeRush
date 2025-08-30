@@ -3,10 +3,7 @@ package com.typer.typerush.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.typer.typerush.auth.domain.repository.UserRepository
-import com.typer.typerush.auth.presentation.AuthIntent
-import com.typer.typerush.auth.presentation.AuthViewModel
 import com.typer.typerush.core.either.Either
-import com.typer.typerush.core.session.SessionManager
 import com.typer.typerush.navigation.NavigationManager
 import com.typer.typerush.navigation.Screen
 import kotlinx.coroutines.delay
@@ -17,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class SplashViewModel(
     private val navigationManager: NavigationManager,
-    private val sessionManager: SessionManager,
     private val userRepository: UserRepository
 ): ViewModel() {
     private val _state = MutableStateFlow(SplashState())
@@ -42,7 +38,8 @@ class SplashViewModel(
     private fun checkUserStatus() {
         _state.value = _state.value.copy(currentAction = SplashAction.CheckingUserStatus)
         viewModelScope.launch {
-            when (val result = userRepository.getUser()) {
+            val result = userRepository.getUser()
+            when (result) {
                 is Either.Right -> navigationManager.navigateToAndClearBackStack(Screen.LandingHome.route)
                 is Either.Left -> navigationManager.navigateToAndClearBackStack(Screen.SignIn.route)
             }

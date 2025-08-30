@@ -1,7 +1,6 @@
 package com.typer.typerush.splash.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -45,26 +44,14 @@ fun BackgroundDecorations(modifier: Modifier = Modifier) {
                 label = "floatingY$index"
             )
 
-            val rotation by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 10000 + (index * 1000),
-                        easing = LinearEasing
-                    )
-                ),
-                label = "rotation$index"
-            )
-
             val positions = listOf(
                 Alignment.TopStart to Offset(50.dp, 100.dp),
-                Alignment.TopEnd to Offset(-80.dp, 150.dp),
-                Alignment.CenterStart to Offset(30.dp, -50.dp),
-                Alignment.CenterEnd to Offset(-60.dp, 80.dp),
-                Alignment.BottomStart to Offset(100.dp, -120.dp),
-                Alignment.BottomEnd to Offset(-40.dp, -80.dp),
-                Alignment.Center to Offset(-100.dp, -200.dp),
+                Alignment.TopEnd to Offset((-80).dp, 150.dp),
+                Alignment.CenterStart to Offset(30.dp, (-50).dp),
+                Alignment.CenterEnd to Offset((-60).dp, 80.dp),
+                Alignment.BottomStart to Offset(100.dp, (-120).dp),
+                Alignment.BottomEnd to Offset((-40).dp, (-80).dp),
+                Alignment.Center to Offset((-100).dp, (-200).dp),
                 Alignment.Center to Offset(120.dp, 150.dp)
             )
 

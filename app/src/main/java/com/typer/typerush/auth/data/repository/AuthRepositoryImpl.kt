@@ -19,7 +19,6 @@ import com.typer.typerush.auth.domain.repository.AuthRepository
 import com.typer.typerush.core.either.Either
 import com.typer.typerush.core.failure.AuthFailure
 import com.typer.typerush.core.failure.Failure
-import com.typer.typerush.core.failure.NetworkFailure
 import com.typer.typerush.core.session.SessionManager
 import kotlinx.coroutines.tasks.await
 
