@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.typer.typerush.ui.theme.TypeRushColors
@@ -30,8 +29,8 @@ import kotlin.collections.forEachIndexed
 @Composable
 fun BottomNavBar(
     modifier: Modifier = Modifier,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit = {},
+    selectedRoute: BottomBarScreen,
+    onTabSelected: (BottomBarScreen) -> Unit = {},
 ) {
     NavigationBar(
         containerColor = Color.Transparent,
@@ -52,19 +51,19 @@ fun BottomNavBar(
         ) {
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
-                    selected = selectedTab == index,
-                    onClick = { onTabSelected(index) },
+                    selected = selectedRoute == item,
+                    onClick = { onTabSelected(item) },
                     icon = {
                         AnimatedNavigationIcon(
                             item = item,
-                            isSelected = selectedTab == index
+                            isSelected = selectedRoute == item
                         )
                     },
                     label = {
                         Text(
                             text = item.title,
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Medium,
+                                fontWeight = if (selectedRoute == item) FontWeight.SemiBold else FontWeight.Medium,
                                 fontSize = 11.sp
                             )
                         )
@@ -120,12 +119,4 @@ fun AnimatedNavigationIcon(
             modifier = modifier.scale(scale)
         )
     }
-}
-
-@Preview
-@Composable
-fun BottomPreview() {
-    BottomNavBar(
-        selectedTab = 0
-    )
 }

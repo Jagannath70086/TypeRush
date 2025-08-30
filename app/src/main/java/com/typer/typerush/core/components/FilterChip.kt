@@ -1,4 +1,4 @@
-package com.typer.typerush.practice.presentation.components
+package com.typer.typerush.core.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable

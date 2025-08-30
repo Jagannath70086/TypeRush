@@ -21,7 +21,6 @@ class AuthViewModel(
     fun onIntent(intent: AuthIntent) {
         when(intent) {
             is AuthIntent.SignInWithGoogle -> signInWithGoogle()
-            is AuthIntent.SignOut -> signOut()
             is AuthIntent.DismissError -> dismissError()
         }
     }
@@ -42,28 +41,6 @@ class AuthViewModel(
                     _state.value = _state.value.copy(
                         isLoading = false,
                         error = result.error.message,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun signOut() {
-        _state.value = _state.value.copy(isLoading = true)
-
-        viewModelScope.launch {
-            when (val result = authRepository.signOut()) {
-                is Either.Right -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = null
-                    )
-                    navigationManager.navigateToAndClearBackStack(Screen.SignIn.route)
-                }
-                is Either.Left -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = result.error.message
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.typer.typerush.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -11,17 +12,21 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.typer.typerush.core.session.SessionManager
 import org.koin.compose.koinInject
 
 @Composable
 fun NavigationStack(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = koinInject()
+    navigationManager: NavigationManager = koinInject(),
+    sessionManager: SessionManager = koinInject()
 ) {
     val navController = rememberNavController()
     val navigationEvent by navigationManager.navigationEvent.collectAsState(initial = null)
+    val user by sessionManager.currentUser.collectAsState()
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { event ->
@@ -39,8 +44,19 @@ fun NavigationStack(
         }
     }
 
+    LaunchedEffect(user) {
+        if (user == null) {
+            navController.navigate(Screen.Splash.route) {
+                popUpTo(0) {
+                    inclusive = true
+                }
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         NavHost(
             navController = navController,
