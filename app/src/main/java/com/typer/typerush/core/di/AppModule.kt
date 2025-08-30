@@ -10,6 +10,7 @@ import com.typer.typerush.auth.presentation.AuthViewModel
 import com.typer.typerush.core.api.FirebaseTokenProvider
 import com.typer.typerush.core.api.HttpClientFactory
 import com.typer.typerush.core.session.SessionManager
+import com.typer.typerush.core.websocket.WebSocketService
 import com.typer.typerush.landing_home.LandingHomeViewModel
 import com.typer.typerush.navigation.NavigationManager
 import com.typer.typerush.practice.data.datasource.PracticeRemoteDatasource
@@ -45,6 +46,7 @@ val appModule = module {
     }
 
     singleOf(::SessionManager)
+    singleOf(::WebSocketService)
 
     //datasource
     factory { AuthRemoteDataSource(client = get(named("withTokenHeader"))) }
