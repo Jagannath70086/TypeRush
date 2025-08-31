@@ -9,4 +9,6 @@ class AuthFailure(override val message: String): Failure
 
 class ServerFailure(override val message: String): Failure
 
+class SocketFailure(override val message: String): Failure
+
 class UnexpectedFailure(override val message: String): Failure

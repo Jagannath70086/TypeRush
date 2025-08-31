@@ -22,8 +22,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_API_URL", "\"http://10.178.99.52:8080/api/\"")
-            buildConfigField("String", "BASE_SOCKET_URL", "\"ws://10.178.99.52:8080/contest\"")
+            buildConfigField("String", "BASE_API_URL", "\"http://10.56.250.161:8080/api/\"")
+            buildConfigField("String", "BASE_SOCKET_URL", "\"ws://10.56.250.161:8080/contest\"")
         }
         release {
             isMinifyEnabled = false
@@ -32,7 +32,7 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_API_URL", "\"https://api.example.com/\"")
-            buildConfigField("String", "BASE_SOCKET_URL", "\"ws://10.178.99.52:8080/\"")
+            buildConfigField("String", "BASE_SOCKET_URL", "\"ws://10.56.250.161:8080/\"")
         }
     }
     compileOptions {

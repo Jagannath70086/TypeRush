@@ -82,7 +82,7 @@ fun LandingHomeScreen(
             TyperSnackBar(
                 message = state.error ?: "",
                 type = SnackBarType.ERROR,
-                onDismiss = {  },
+                onDismiss = { viewModel.onIntent(LandingHomeIntent.DismissError) },
                 duration = SnackbarDuration.Indefinite,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )

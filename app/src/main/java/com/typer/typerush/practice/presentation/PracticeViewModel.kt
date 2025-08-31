@@ -20,7 +20,9 @@ class PracticeViewModel(
 
     private val _state = MutableStateFlow(PracticeState())
     val state = _state
-        .onStart { onIntent(PracticeIntent.GetPracticeCards) }
+        .onStart { if (_state.value.practiceCards.isEmpty() && !_state.value.isLoading) {
+            onIntent(PracticeIntent.GetPracticeCards)
+        } }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

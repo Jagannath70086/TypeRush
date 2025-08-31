@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class UserModel(
     @SerialName("_id")
     val id: String? = null,
+    val firebaseId: String? = null,
     val name: String = "Anonymous",
     val email: String = "abc@example.com",
     val photoUrl: String = "",
