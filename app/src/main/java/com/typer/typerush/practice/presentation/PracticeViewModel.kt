@@ -2,10 +2,12 @@ package com.typer.typerush.practice.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.typer.typerush.core.CurrentGameProvider
 import com.typer.typerush.core.either.Either
 import com.typer.typerush.navigation.NavigationManager
 import com.typer.typerush.navigation.Screen
 import com.typer.typerush.practice.domain.repository.PracticeRepository
+import com.typer.typerush.typetest.domain.models.GameInfoModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class PracticeViewModel(
     private val practiceRepository: PracticeRepository,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val currentGame: CurrentGameProvider
 ): ViewModel() {
 
     private val _state = MutableStateFlow(PracticeState())
@@ -36,7 +39,7 @@ class PracticeViewModel(
             is PracticeIntent.FilterPracticeCards -> filterPracticeCards(intent.query)
             is PracticeIntent.ClearFilter -> clearFilter()
             is PracticeIntent.DismissError -> dismissError()
-            is PracticeIntent.StartTypeTest -> startTypeTest(intent.id)
+            is PracticeIntent.StartPractice -> startTypeTest(intent.id)
         }
     }
 
@@ -101,8 +104,24 @@ class PracticeViewModel(
     }
 
     private fun startTypeTest(id: String) {
+        _state.update { it.copy(startPractice = true) }
         viewModelScope.launch {
-            navigationManager.navigateTo("${Screen.TypeTest.route}/$id")
+            when (val result = practiceRepository.getPracticeInfo(id)) {
+                is Either.Right -> {
+                    _state.update { it.copy(startPractice = false) }
+                    currentGame.setCurrentGame(
+                        game = GameInfoModel(
+                            id = result.value.id,
+                            text = result.value.text,
+                            time = result.value.time
+                        )
+                    )
+                    navigationManager.navigateTo("${Screen.TypeTest.route}/practice")
+                }
+                is Either.Left -> {
+                    _state.update { it.copy(startPractice = false, error = result.error.message ) }
+                }
+            }
         }
     }
 }

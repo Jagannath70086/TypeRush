@@ -111,6 +111,7 @@ class CreateContestViewModel(
     }
     private fun onCreateContest() {
         if (!isContestValid()) {
+            _state.value = _state.value.copy(error = "Please fill in all the required fields")
             return
         }
         _state.value = _state.value.copy(isLoading = true)

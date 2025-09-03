@@ -12,6 +12,7 @@ import com.typer.typerush.compete.data.repository.CompeteRepositoryImpl
 import com.typer.typerush.compete.domain.repository.CompeteRepository
 import com.typer.typerush.compete.presentation.CompeteViewModel
 import com.typer.typerush.core.CurrentContest
+import com.typer.typerush.core.CurrentGameProvider
 import com.typer.typerush.core.api.FirebaseTokenProvider
 import com.typer.typerush.core.httpClient.HttpClientFactory
 import com.typer.typerush.core.session.SessionManager
@@ -29,6 +30,14 @@ import com.typer.typerush.practice.data.repository.PracticeRepositoryImpl
 import com.typer.typerush.practice.domain.repository.PracticeRepository
 import com.typer.typerush.practice.presentation.PracticeViewModel
 import com.typer.typerush.splash.SplashViewModel
+import com.typer.typerush.typetest.data.datasource.TypeTestRemoteDatasource
+import com.typer.typerush.typetest.data.handlers.TypeTestHandlers
+import com.typer.typerush.typetest.data.repository.TypeTestRepositoryImpl
+import com.typer.typerush.typetest.domain.repository.TypeTestRepository
+import com.typer.typerush.typetest.presentation.TypeTestViewModel
+import com.typer.typerush.waiting_page.data.handlers.WaitingHandler
+import com.typer.typerush.waiting_page.data.repository.WaitingRepositoryImpl
+import com.typer.typerush.waiting_page.domain.repository.WaitingRepository
 import com.typer.typerush.waiting_page.presentation.WaitingViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -63,6 +72,8 @@ val appModule = module {
 
     singleOf(::SessionManager)
     singleOf(::CurrentContest)
+    singleOf(::CurrentGameProvider)
+    singleOf(::CurrentGameProvider)
     singleOf(::EventBus)
 
     single {
@@ -75,11 +86,14 @@ val appModule = module {
     //handler
     singleOf(::CompeteHandler) bind(WebSocketHandler::class)
     singleOf(::CreateContestHandler) bind(WebSocketHandler::class)
+    singleOf(::WaitingHandler) bind(WebSocketHandler::class)
+    singleOf(::TypeTestHandlers) bind(WebSocketHandler::class)
 
     //datasource
     factory { AuthRemoteDataSource(client = get(named("withTokenHeader"))) }
     factory { UserRemoteDataSource(client = get(named("withTokenHeader"))) }
     factory { PracticeRemoteDatasource(client = get(named("withTokenHeader"))) }
+    factory { TypeTestRemoteDatasource(client = get(named("withTokenHeader"))) }
 
     //repository
     singleOf(::AuthRepositoryImpl) bind(AuthRepository::class)
@@ -87,6 +101,8 @@ val appModule = module {
     singleOf(::PracticeRepositoryImpl) bind(PracticeRepository::class)
     singleOf(::CompeteRepositoryImpl) bind(CompeteRepository::class)
     singleOf(::CreateContestRepositoryImpl) bind(CreateContestRepository::class)
+    singleOf(::WaitingRepositoryImpl) bind(WaitingRepository::class)
+    singleOf(::TypeTestRepositoryImpl) bind(TypeTestRepository::class)
 
     //viewModels
     viewModelOf(::AuthViewModel)
@@ -96,4 +112,5 @@ val appModule = module {
     viewModelOf(::CompeteViewModel)
     viewModelOf(::CreateContestViewModel)
     viewModelOf(::WaitingViewModel)
+    viewModelOf(::TypeTestViewModel)
 }

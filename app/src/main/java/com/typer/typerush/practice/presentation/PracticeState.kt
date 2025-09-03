@@ -4,6 +4,8 @@ import com.typer.typerush.practice.domain.models.PracticeCardModel
 
 data class PracticeState(
     val isLoading: Boolean = false,
+    val startPractice: Boolean = false,
+    val isPracticeStarting: Boolean = false,
     val practiceCards: List<PracticeCardModel> = emptyList(),
     val filteredPracticeCards: List<PracticeCardModel> = emptyList(),
     val error: String? = null,

@@ -162,7 +162,7 @@ class CompeteViewModel(
         viewModelScope.launch {
             competeRepository.getCompeteEvents().collect { event ->
                 when (event) {
-                    is CompeteEvent.ContestCardUpdated -> updateContestCard(event.contestCardModel)
+                    is CompeteEvent.NewParticipantJoined -> updateContestCard(event.contestId)
                     is CompeteEvent.Error -> {
                         _state.update { it.copy(error = event.message, isLoading = false) }
                     }
@@ -198,21 +198,13 @@ class CompeteViewModel(
         }
     }
 
-    private fun updateContestCard(contestCardModel: ContestCardModel) {
+    private fun updateContestCard(contestId: String) {
         _state.update { it.copy(
             contestCards = it.contestCards.map { card ->
-                if (card.id == contestCardModel.id) {
-                    contestCardModel
-                } else {
-                    card
-                }
+                card.takeIf { card.id != contestId } ?: card.copy(currentPlayers = card.currentPlayers + 1)
             },
             filteredContestCards = it.filteredContestCards.map { card ->
-                if (card.id == contestCardModel.id) {
-                    contestCardModel
-                } else {
-                    card
-                }
+                card.takeIf { card.id != contestId } ?: card.copy(currentPlayers = card.currentPlayers + 1)
             }
         ) }
     }

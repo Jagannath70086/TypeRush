@@ -62,12 +62,15 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.NativeClipboard
+import androidx.compose.ui.window.Dialog
 import com.typer.typerush.core.components.SnackBarType
 import com.typer.typerush.core.components.TyperSnackBar
 import com.typer.typerush.core.session.SessionManager
 import com.typer.typerush.landing_home.LandingHomeIntent
 import com.typer.typerush.practice.presentation.PracticeIntent
 import com.typer.typerush.waiting_page.presentation.components.ParticipantUi
+import com.typer.typerush.waiting_page.presentation.components.StartingDialog
+import com.typer.typerush.waiting_page.presentation.components.StatusCard
 import kotlinx.coroutines.runBlocking
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -80,6 +83,7 @@ fun WaitingScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val currentUser by sessionManager.currentUser.collectAsState()
+    val currentUserIsCreator = state.contestModel?.players?.find { it.isCreator && it.userId == currentUser?.firebaseId } != null
 
     val clipboardManager = LocalClipboardManager.current
     Box(
@@ -267,7 +271,6 @@ fun WaitingScreen(
                                 ),
                                 color = TypeRushColors.TextPrimary
                             )
-
                             Text(
                                 text = "${state.contestModel?.players?.size ?: 1}/${state.contestModel?.maxPlayers ?: 1}",
                                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -414,7 +417,7 @@ fun WaitingScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        if (state.contestModel?.players?.find { it.isCreator }?.userId == currentUser?.firebaseId && state.contestModel?.status == "waiting") {
+        if (currentUserIsCreator && state.contestModel?.status!!.uppercase() == "WAITING") {
             ElevatedButton(
                 onClick = {
                     Log.i("WaitingScreen", "WaitingScreen: Starting room")
@@ -434,7 +437,7 @@ fun WaitingScreen(
                     pressedElevation = 12.dp,
                     disabledElevation = 4.dp
                 ),
-                enabled = state.isConnected && !state.isStarting
+                enabled = state.isConnected && !state.isLoading && !state.hasStarted
             ) {
                 Text("Start Room",
                     style = TypeRushTextStyles.buttonText,
@@ -442,99 +445,15 @@ fun WaitingScreen(
                 )
             }
         }
-        else if (state.contestModel?.status == "waiting") {
-            Card(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp)
-                    .align(Alignment.BottomCenter)
-                    .animateContentSize(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFFC107).copy(alpha = 0.3f),
-                            Color(0xFFFFD54F).copy(alpha = 0.3f),
-                            Color(0xFFFFA726).copy(alpha = 0.3f)
-                        )
-                    )
-                )
-            ) {
-                Row(
-                    modifier = modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.HourglassEmpty,
-                        contentDescription = "Leaderboard",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color(0xFFFFC107)
-                    )
-                    Text(
-                        text = "Waiting for the host to start",
-                        style = TypeRushTextStyles.buttonText.copy(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = TypeRushColors.TextPrimary
-                    )
-                }
-            }
-        }
-        else if (state.contestModel?.status == "finished"){
-            Card(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp)
-                    .align(Alignment.BottomCenter)
-                    .animateContentSize(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF2DC286).copy(alpha = 0.3f),
-                            Color(0xFF2363C4).copy(alpha = 0.3f),
-                            Color(0xFF3F1AE3).copy(alpha = 0.3f)
-                        )
-                    )
-                )
-            ) {
-                Row(
-                    modifier = modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Finished",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color(0xFF5CEA3C)
-                    )
-                    Text(
-                        text = "Waiting for the host to start",
-                        style = TypeRushTextStyles.buttonText.copy(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = TypeRushColors.TextPrimary
-                    )
-                }
+
+        else {
+            state.contestModel?.status?.let { status ->
+                StatusCard(status = status, modifier = modifier.align(Alignment.BottomCenter))
             }
         }
 
         TyperSnackBar(
-            message = state.errorMessage ?: "",
+            message = state.error ?: "",
             type = SnackBarType.ERROR,
             onDismiss = { viewModel.onIntent(WaitingIntent.DismissError) },
             duration = SnackbarDuration.Indefinite,
@@ -564,16 +483,16 @@ fun WaitingScreen(
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    enabled = !state.isStarting
+                    enabled = !state.isLoading
                 ) {
-                    if (!state.isStarting) {
+                    if (!state.isLoading) {
                         viewModel.onIntent(WaitingIntent.DismissStartDialog)
                     }
                 }
         )
         AlertDialog(
             onDismissRequest = {
-                if (!state.isStarting) {
+                if (!state.isLoading) {
                     viewModel.onIntent(WaitingIntent.DismissStartDialog)
                 }
             },
@@ -603,12 +522,12 @@ fun WaitingScreen(
                 ) {
                     TextButton(
                         onClick = {
-                            if (!state.isStarting) {
+                            if (!state.isLoading) {
                                 viewModel.onIntent(WaitingIntent.DismissStartDialog)
                             }
                         },
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = if (state.isStarting)
+                            contentColor = if (state.isLoading)
                                 TypeRushColors.TextSecondary.copy(alpha = 0.4f)
                             else
                                 TypeRushColors.TextSecondary
@@ -617,21 +536,21 @@ fun WaitingScreen(
                             .height(36.dp)
                             .border(
                                 width = 1.dp,
-                                color = if (state.isStarting)
+                                color = if (state.isLoading)
                                     Color.White.copy(alpha = 0.3f)
                                 else
                                     Color.White.copy(alpha = 0.8f),
                                 shape = RoundedCornerShape(16.dp)
                             )
                             .height(24.dp),
-                        enabled = !state.isStarting
+                        enabled = !state.isLoading
                     ) {
                         Text(
                             text = "Cancel",
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.Medium
                             ),
-                            color = if (state.isStarting)
+                            color = if (state.isLoading)
                                 TypeRushColors.TextSecondary.copy(alpha = 0.4f)
                             else
                                 TypeRushColors.TextSecondary
@@ -652,9 +571,9 @@ fun WaitingScreen(
                         ),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.padding(start = 8.dp),
-                        enabled = !state.isStarting
+                        enabled = !state.isLoading
                     ) {
-                        if (state.isStarting) {
+                        if (state.isLoading) {
                             CircularProgressIndicator(
                                 color = Color.White,
                                 strokeWidth = 2.dp,
@@ -690,4 +609,6 @@ fun WaitingScreen(
                 )
         )
     }
+
+    StartingDialog(state.hasStarted)
 }

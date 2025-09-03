@@ -21,6 +21,7 @@ sealed class Screen(val route: String) {
     object TypeTest : Screen("type_test")
     object CreateContest : Screen("create_contest")
     object Waiting : Screen("waiting")
+    object Results : Screen("results")
 }
 
 sealed class BottomBarScreen(

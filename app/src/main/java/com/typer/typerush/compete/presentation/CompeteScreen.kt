@@ -48,7 +48,7 @@ fun CompeteScreen(
     modifier: Modifier = Modifier,
     viewModel: CompeteViewModel = koinViewModel()
 ) {
-    val tags = remember { listOf("All", "My Contests", "Waiting", "Completed") }
+    val tags = remember { listOf("All", "My Contests", "Waiting", "Finished") }
     val state by viewModel.state.collectAsState()
 
     Box {

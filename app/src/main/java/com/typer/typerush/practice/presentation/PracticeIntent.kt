@@ -6,5 +6,5 @@ sealed interface PracticeIntent{
     data class FilterPracticeCards(val query: String) : PracticeIntent
     data object ClearFilter : PracticeIntent
     data object DismissError : PracticeIntent
-    data class StartTypeTest(val id: String) : PracticeIntent
+    data class StartPractice(val id: String) : PracticeIntent
 }

@@ -14,11 +14,16 @@ import com.typer.typerush.create_contest.domain.models.ContestModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 
+@Serializable
+data class ContestIdAfterJoining(
+    val contestId: String
+)
 
 class CompeteHandler(
     private val eventBus: EventBus,
@@ -33,7 +38,7 @@ class CompeteHandler(
     private val json = Json { ignoreUnknownKeys = true }
 
     override fun supportedTypes(): List<String> {
-        return listOf("getContests", "contestCardUpdated", "updatingAfterCreated", "updatingAfterJoined", "joiningContestWithCode", "contestInfoFromCode", "error")
+        return listOf("getContests", "newParticipantJoined", "updatingAfterCreated", "updatingAfterJoined", "joiningContestWithCode", "contestInfoFromCode", "error")
     }
 
     override suspend fun handle(type: String, message: JsonElement?) {
@@ -52,9 +57,9 @@ class CompeteHandler(
                     val contestCards = json.decodeFromJsonElement<List<ContestCardModel>>(res.response)
                     _events.emit(CompeteEvent.GetContestCards(contestCards))
                 }
-                "contestCardUpdated" -> {
-                    val contestCardModel = json.decodeFromJsonElement<ContestCardModel>(res.response)
-                    _events.emit(CompeteEvent.ContestCardUpdated(contestCardModel))
+                "newParticipantJoined" -> {
+                    val contestId = json.decodeFromJsonElement<ContestIdAfterJoining>(res.response).contestId
+                    _events.emit(CompeteEvent.NewParticipantJoined(contestId))
                 }
                 "updatingAfterJoined" -> {
                     val contestCardModel = json.decodeFromJsonElement<ContestCardModel>(res.response)

@@ -41,7 +41,7 @@ fun BottomNavBar(
 //            BottomBarScreen.Home,
             BottomBarScreen.Practice,
             BottomBarScreen.Compete,
-            BottomBarScreen.Progress,
+//            BottomBarScreen.Progress,
 //            BottomBarScreen.Profile
         )
         Row(
